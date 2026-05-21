@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUNO Galagame</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#0a0619;
+font-family:'Noto Sans TC',sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+color:white;
+}
+
+.game-container{
+width:960px;
+height:620px;
+position:relative;
+overflow:hidden;
+border-radius:16px;
+border:6px solid #6b5fa8;
+background:#1a1433;
+box-shadow:0 10px 40px rgba(0,0,0,0.8);
+}
+
+.background{
+position:absolute;
+inset:0;
+background:url('https://image-assets.mihuashi.com/2017/09/01/11/lmzd9uaqfaizxja03b3vo8cepfnjaomd/lmzd9uaqfaizxja03b3vo8cepfnjaomd.jpg') center/cover no-repeat;
+filter:brightness(0.65);
+}
+
+.character{
+position:absolute;
+right:30px;
+bottom:20px;
+height:500px;
+max-width:45%;
+object-fit:contain;
+z-index:5;
+transition:0.25s;
+}
+
+.dialogue-box{
+position:absolute;
+left:50%;
+bottom:40px;
+transform:translateX(-50%);
+width:82%;
+background:rgba(25,20,55,0.93);
+border:3px solid #8b7fd6;
+border-radius:12px;
+padding:24px;
+z-index:10;
+}
+
+.name-tag{
+position:absolute;
+top:-18px;
+left:30px;
+background:#4a3d8a;
+padding:6px 22px;
+border-radius:20px;
+font-weight:bold;
+}
+
+.dialogue-text{
+font-size:21px;
+line-height:1.6;
+min-height:80px;
+}
+
+.choices{
+position:absolute;
+left:50%;
+bottom:155px;
+transform:translateX(-50%);
+display:flex;
+flex-direction:column;
+gap:10px;
+z-index:15;
+}
+
+.choice-btn{
+padding:13px 24px;
+font-size:17px;
+background:#2a2350;
+border:2px solid #8b7fd6;
+border-radius:8px;
+color:white;
+cursor:pointer;
+transition:0.2s;
+min-width:420px;
+}
+
+.choice-btn:hover{
+background:#4b3aa0;
+transform:translateY(-3px);
+}
+
+.status{
+position:absolute;
+top:20px;
+left:20px;
+background:rgba(20,20,50,0.9);
+padding:8px 16px;
+border-radius:8px;
+border:2px solid #8b7fd6;
+z-index:20;
+}
+
+.affection{
+position:absolute;
+top:20px;
+right:20px;
+background:rgba(20,20,50,0.9);
+padding:8px 18px;
+border-radius:20px;
+border:2px solid #8b7fd6;
+z-index:20;
+}
+
+.title-screen,
+.ending-screen{
+position:absolute;
+inset:0;
+background:rgba(10,6,25,0.97);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:100;
+}
+
+.big-title{
+font-size:46px;
+margin-bottom:25px;
+color:#c8bbff;
+background-color: rgb(88, 12, 95);
+padding: 10px 15px;
+border-radius: 15px;
+}
+
+.main-btn{
+padding:14px 45px;
+font-size:20px;
+background:#4a3d8a;
+border:2px solid #b8a8ff;
+border-radius:8px;
+color:white;
+cursor:pointer;
+transition:0.2s;
+}
+
+.main-btn:hover{
+background:#6552c0;
+}
+
+@media(max-width:768px){
+
+.game-container{
+width:100%;
+height:100vh;
+border-radius:0;
+}
+
+.character{
+height:320px;
+right:0;
+}
+
+.dialogue-box{
+width:95%;
+padding:16px;
+}
+
+.dialogue-text{
+font-size:17px;
+}
+
+.choice-btn{
+min-width:260px;
+font-size:15px;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-container">
+
+<div class="background"></div>
+
+<img
+src="C:\Users\rx78n\Documents\Brain 銘言堂\喔喔喔3.png"
+class="character"
+id="character-img"
+alt="IUNO"
+>
+
+<div class="status">
+第 <span id="day">1</span> 天
+</div>
+
+<div class="affection">
+好感度 <span id="affection">❤️❤️♡♡♡</span>
+</div>
+
+<div class="dialogue-box">
+
+<div class="name-tag" id="name">
+IUNO
+</div>
+
+<div class="dialogue-text" id="dialogue-text">
+歡迎回來，拉普拉斯學長…
+</div>
+
+</div>
+
+<div class="choices" id="choices"></div>
+
+<div class="title-screen" id="title-screen">
+
+<div class="big-title">
+尤姓鉛筆與胖胖學長(DEMO)
+</div>
+
+<button class="main-btn" onclick="startGame()">
+開始遊戲
+</button>
+
+</div>
+
+<div class="ending-screen" id="ending-screen" style="display:none;">
+
+<div class="big-title" id="ending-title">
+結局
+</div>
+
+<p id="ending-text"
+style="
+font-size:22px;
+margin:30px;
+max-width:520px;
+text-align:center;
+line-height:1.7;
+">
+</p>
+
+<button class="main-btn" onclick="restartGame()">
+重新開始
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+window.onload = () => {
+
+let affection = 35;
+let day = 1;
+let lockChoice = false;
+let typing = false;
+let typingTimer = null;
+
+const scenes = [
+
+{
+name:"IUNO",
+text:"拉普拉斯學長…你來了。我一直都在等你。",
+choices:[
+{text:"抱歉讓妳久等了", affection:18, next:1},
+{text:"IUNO 真好看", affection:25, next:1},
+{text:"我只是順道過來", affection:-8, next:2}
+]
+},
+
+{
+name:"IUNO",
+text:"呵呵…學長這樣說，我有點害羞呢。要不要一起走走？",
+choices:[
+{text:"好啊，我很願意", affection:22, next:3},
+{text:"今天想做什麼？", affection:12, next:4}
+]
+},
+
+{
+name:"IUNO",
+text:"沒關係…我還是想多跟拉普拉斯學長聊聊。",
+choices:[
+{text:"對不起，讓我們重新開始", affection:15, next:1}
+]
+},
+
+{
+name:"IUNO",
+text:"拉普拉斯學長，猜猜我最喜歡什麼顏色？",
+choices:[
+{text:"藍色，就像妳的眼睛", affection:25, next:5},
+{text:"金色，和妳很配", affection:15, next:5},
+{text:"我不知道", affection:5, next:5}
+]
+},
+
+{
+name:"IUNO",
+text:"學長真的很懂我…心裡暖暖的。",
+choices:[
+{text:"繼續陪妳吧", affection:20, next:6}
+]
+},
+
+{
+name:"IUNO",
+text:"跟拉普拉斯學長在一起，時間好像都變慢了…學長也是這樣想的嗎？",
+choices:[
+{text:"我也很喜歡跟妳在一起", affection:28, next:7},
+{text:"很開心", affection:18, next:7}
+]
+},
+
+{
+name:"IUNO",
+text:"謝謝學長一直陪著我。",
+choices:[
+{text:"我想一直陪在妳身邊", affection:30, next:8},
+{text:"我會保護妳", affection:25, next:8}
+]
+},
+
+{
+name:"IUNO",
+text:"拉普拉斯學長…我們一起走下去，好嗎？",
+choices:[
+{text:"嗯，永遠在一起", affection:20, next:9}
+]
+},
+
+{
+name:"IUNO",
+text:"學長知道嗎？其實我一直很想和學長一起去看看夜晚的城市。",
+choices:[
+{text:"那我們現在就去吧", affection:20, next:10},
+{text:"只要妳想去，我都陪妳", affection:25, next:10}
+]
+},
+
+{
+name:"IUNO",
+text:"嘿嘿…總覺得只要待在學長身邊，連夜空都變得溫柔了。",
+choices:[
+{text:"因為妳也很溫柔", affection:25, next:11},
+{text:"今晚真的很漂亮", affection:10, next:11}
+]
+},
+
+{
+name:"IUNO",
+text:"學長會不會有一天突然討厭我？",
+choices:[
+{text:"永遠不會", affection:30, next:12},
+{text:"我會一直喜歡妳", affection:25, next:12}
+]
+},
+
+{
+name:"IUNO",
+text:"聽到學長這樣說…我真的好開心。",
+choices:[
+{text:"摸摸她的頭", affection:20, next:13},
+{text:"輕輕抱住她", affection:30, next:13}
+]
+},
+
+{
+name:"IUNO",
+text:"IUNO 慢慢靠近你，輕輕閉上了眼睛。",
+choices:[
+{text:"親吻她", affection:35, next:14},
+{text:"溫柔看著她", affection:20, next:14}
+]
+},
+
+{
+name:"IUNO",
+text:"即使未來仍然未知，但兩人的距離已經再也無法分開。",
+choices:[
+{text:"牽起她的手", affection:25, next:15},
+{text:"對她微笑", affection:15, next:15}
+]
+},
+
+{
+name:"IUNO",
+text:"拉普拉斯學長…最喜歡你了。",
+choices:[
+{text:"我也最喜歡妳了", affection:999, next:"end"}
+]
+}
+
+];
+
+function updateAffection(){
+
+affection = Math.max(0, Math.min(100, affection));
+
+let hearts = "";
+
+const full = Math.floor(affection / 20);
+
+for(let i=0;i<5;i++){
+hearts += i < full ? "❤️" : "♡";
+}
+
+document.getElementById("affection").innerHTML = hearts;
+
+}
+
+function typeText(text, element, speed=28){
+
+if(typingTimer){
+clearInterval(typingTimer);
+}
+
+typing = true;
+
+element.innerHTML = "";
+
+let i = 0;
+
+typingTimer = setInterval(()=>{
+
+if(i < text.length){
+
+element.innerHTML += text.charAt(i);
+i++;
+
+}else{
+
+clearInterval(typingTimer);
+typing = false;
+
+}
+
+}, speed);
+
+}
+
+function showScene(index){
+
+if(index === "end"){
+showEnding();
+return;
+}
+
+if(index === undefined || !scenes[index]){
+console.error("場景不存在:", index);
+return;
+}
+
+lockChoice = false;
+
+const scene = scenes[index];
+
+document.getElementById("name").textContent = scene.name;
+
+typeText(
+scene.text,
+document.getElementById("dialogue-text")
+);
+
+const choicesDiv = document.getElementById("choices");
+
+choicesDiv.innerHTML = "";
+
+scene.choices.forEach(choice=>{
+
+const btn = document.createElement("button");
+
+btn.className = "choice-btn";
+
+btn.textContent = choice.text;
+
+btn.onclick = ()=>{
+
+if(lockChoice || typing) return;
+
+lockChoice = true;
+
+affection += choice.affection;
+
+updateAffection();
+
+day++;
+
+document.getElementById("day").textContent = day;
+
+const char = document.getElementById("character-img");
+
+char.style.transform = "scale(1.03)";
+
+setTimeout(()=>{
+char.style.transform = "scale(1)";
+},180);
+
+setTimeout(()=>{
+showScene(choice.next);
+},250);
+
+};
+
+choicesDiv.appendChild(btn);
+
+});
+
+}
+
+function showEnding(){
+
+lockChoice = true;
+
+document.getElementById("choices").innerHTML = "";
+
+const ending = document.getElementById("ending-screen");
+
+const title = document.getElementById("ending-title");
+
+const text = document.getElementById("ending-text");
+
+if(affection >= 90){
+
+title.textContent = "真愛結局";
+
+text.innerHTML =
+"IUNO 輕輕靠在拉普拉斯學長懷裡。<br><br>『以後…我的時間只屬於學長一個人。』";
+
+}else if(affection >= 60){
+
+title.textContent = "普通結局";
+
+text.innerHTML =
+"IUNO 露出溫柔的微笑。";
+
+}else{
+
+title.textContent = "失敗結局";
+
+text.innerHTML =
+"IUNO 低下了頭。";
+
+}
+
+ending.style.display = "flex";
+
+}
+
+window.startGame = function(){
+
+document.getElementById("title-screen").style.display = "none";
+
+document.getElementById("ending-screen").style.display = "none";
+
+affection = 35;
+day = 1;
+lockChoice = false;
+
+updateAffection();
+
+document.getElementById("day").textContent = day;
+
+showScene(0);
+
+};
+
+window.restartGame = function(){
+
+document.getElementById("ending-screen").style.display = "none";
+
+document.getElementById("choices").innerHTML = "";
+
+affection = 35;
+day = 1;
+lockChoice = false;
+
+updateAffection();
+
+document.getElementById("day").textContent = day;
+
+showScene(0);
+
+};
+
+let enterCooldown = false;
+
+document.addEventListener("keydown",(e)=>{
+
+if(e.key !== "Enter") return;
+
+if(enterCooldown) return;
+
+enterCooldown = true;
+
+setTimeout(()=>{
+enterCooldown = false;
+},200);
+
+const btn = document.querySelector(".choice-btn");
+
+if(btn && !lockChoice && !typing){
+btn.click();
+}
+
+});
+
+console.log("IUNO Galagame Ultimate 穩定版載入成功");
+
+};
+
+</script>
+
+</body>
+</html>
